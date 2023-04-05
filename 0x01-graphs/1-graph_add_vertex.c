@@ -34,5 +34,6 @@ vertex_t *graph_add_vertex(graph_t *graph, const char *str)
 		swp->next = new;
 	else
 		graph->vertices = new;
+	graph->nb_vertices += 1;
 	return (new);
 }

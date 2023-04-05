@@ -7,7 +7,6 @@
  *
  * Return: pointer on successe, NULL On failure
  */
-vertex_t *search_content(vertex_t *root, const char *content)
 {
 	vertex_t *p_v = root;
 
