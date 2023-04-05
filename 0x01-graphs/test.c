@@ -10,11 +10,7 @@
  */
 int main(void)
 {
-    graph_t *graph;
-
-    graph = graph_create();
-
-    graph_display(graph);
-
-    return (EXIT_SUCCESS);
+	int i = 0;
+	printf( "i=%*d\n", 3, i );
+	return (EXIT_SUCCESS);
 }
