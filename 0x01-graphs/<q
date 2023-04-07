@@ -1,40 +1,27 @@
 #include "graphs.h"
 
-void new_array_elem(vertex_t **array, vertex_t *dest)
-{
-	int i;
-
-	for (i = 0; array[i]; i++);
-	array[i] == dest
-	
-}
 
 int search_array(vertex_t **array, vertex_t *dest)
 {
 	int i = 0;
 
-	if (!dest)
-		return (0);
 	for (; array[i]; i++)
 	{
 		if (array[i] == dest)
 			return (0);
-	};
+	}
+	array[i] = dest;
 	return (1);
 }
 
 size_t search_deadend(vertex_t **array, edge_t *edge, size_t size,
 		void (*action)(const vertex_t *v, size_t depth))
 {
-	edge_t *e;
-
 	if (search_array(array, edge->dest) == 1)
 	{
-		new_array_elem(array, edge->dest);
 		action(edge->dest, size);
-		e = edge->dest->edges;
-		if (e)
-			return (search_deadend(array, e, size + 1, action));
+		if (edge->dest->edges)
+			return (search_deadend(array, edge->dest->edges, size + 1, action));
 		return (search_deadend(array, edge->next, size, action));
 	}
 	if (search_array(array, edge->dest) == 0)
@@ -43,6 +30,7 @@ size_t search_deadend(vertex_t **array, edge_t *edge, size_t size,
 			return (search_deadend(array, edge->next, size, action));
 		return (size);
 	}
+	return;
 }
 
 /**

@@ -26,7 +26,12 @@ vertex_t *graph_add_vertex(graph_t *graph, const char *str)
 	new = (vertex_t *)malloc(sizeof(vertex_t));
 	if (!new)
 		return (NULL);
-	new->content = (char *)str;
+	new->content = strdup(str);
+	if (!new->content)
+	{
+		free(new);
+		return (NULL);
+	}
 	new->index = (size_t)ctr;
 	new->edges = NULL;
 	new->nb_edges = 0;
