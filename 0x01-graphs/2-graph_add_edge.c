@@ -76,9 +76,9 @@ int graph_add_edge(graph_t *graph, const char *src,
 	vertex_t *src_idx, *dest_idx;
 	int check;
 
-	if (head == NULL)
+	if (head == NULL || src == NULL || dest == NULL)
 		return (0);
-
+	
 	src_idx = search_content(head, src);
 	head = graph->vertices;
 	dest_idx = search_content(head, dest);
