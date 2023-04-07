@@ -10,7 +10,15 @@
  */
 int main(void)
 {
-	int i = 0;
-	printf( "i=%*d\n", 3, i );
+	char *hello = "hello";
+	int s;
+
+	s = strcmp(hello, "hello ");
+
+	printf("%d\n", s);
+	
+	if (hello = "hello ")
+		printf("succes");
+
 	return (EXIT_SUCCESS);
 }

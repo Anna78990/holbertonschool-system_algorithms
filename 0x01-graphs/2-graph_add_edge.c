@@ -13,7 +13,7 @@ vertex_t *search_content(vertex_t *root, const char *content)
 
 	while (p_v)
 	{
-		if (p_v->content == content)
+		if (!strcmp(p_v->content, content))
 			return (p_v);
 		p_v = p_v->next;
 	}
@@ -41,7 +41,7 @@ int add_edge(vertex_t *root, const char *content, vertex_t *dest)
 	new->next = NULL;
 	while (p_vertex)
 	{
-		if (p_vertex->content == content)
+		if (!strcmp(p_vertex->content, content))
 		{
 			p_edge = p_vertex->edges;
 			if (p_edge)
