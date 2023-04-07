@@ -20,7 +20,7 @@ vertex_t *graph_add_vertex(graph_t *graph, const char *str)
 		while (check)
 		{
 			ctr++;
-			if (check->content == str)
+			if (!strcmp(check->content, str))
 				return (NULL);
 			swp = check;
 			check = check->next;
