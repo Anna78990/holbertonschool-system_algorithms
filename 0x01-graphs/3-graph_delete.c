@@ -3,7 +3,7 @@
 
 /**
  * edge_delete - free the edge memories
- * @edge: pointer to the top of edges
+ * @edges: pointer to the top of edges
  *
  * Return: always nothing
  */
@@ -35,6 +35,7 @@ void graph_delete(graph_t *graph)
 		if (p_vertex->edges)
 			edge_delete(p_vertex->edges);
 		next = p_vertex->next;
+		free(p_vertex->content);
 		free(p_vertex);
 		p_vertex = next;
 	}
