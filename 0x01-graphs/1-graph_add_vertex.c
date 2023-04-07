@@ -4,14 +4,17 @@
  * graph_add_vertex - allocate memory of graph_t structure
  * @graph: pointer to be added
  * @str: added string
+ *
  * Return: pointer to new vertex if it succeed, otherwise NULL
  */
 vertex_t *graph_add_vertex(graph_t *graph, const char *str)
 {
 	int ctr = 0;
-	vertex_t *check = graph->vertices;
-	vertex_t *new, *swp = NULL;
+	vertex_t *check, *new, *swp = NULL;
 
+	if (!graph || !str)
+		return (NULL);
+	check = graph->vertices;
 	if (check != NULL)
 	{
 		while (check)
