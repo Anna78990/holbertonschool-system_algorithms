@@ -28,7 +28,12 @@ void edge_delete(edge_t *edges)
  */
 void graph_delete(graph_t *graph)
 {
-	vertex_t *p_vertex = graph->vertices, *next;
+	vertex_t *p_vertex, *next;
+
+	if (graph)
+		p_vertex = graph->vertices;
+	else
+		return;
 
 	while (p_vertex)
 	{
