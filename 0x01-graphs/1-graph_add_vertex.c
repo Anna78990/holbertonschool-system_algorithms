@@ -10,7 +10,7 @@ vertex_t *graph_add_vertex(graph_t *graph, const char *str)
 {
 	int ctr = 0;
 	vertex_t *check = graph->vertices;
-	vertex_t *new, *swp = check;
+	vertex_t *new, *swp = NULL;
 
 	if (check != NULL)
 	{
@@ -35,6 +35,7 @@ vertex_t *graph_add_vertex(graph_t *graph, const char *str)
 	new->index = (size_t)ctr;
 	new->edges = NULL;
 	new->nb_edges = 0;
+	new->next = NULL;
 	if (swp)
 		swp->next = new;
 	else
