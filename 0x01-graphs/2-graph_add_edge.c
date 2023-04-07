@@ -72,13 +72,12 @@ int add_edge(vertex_t *root, const char *content, vertex_t *dest)
 int graph_add_edge(graph_t *graph, const char *src,
 		const char *dest, edge_type_t type)
 {
-	vertex_t *head = graph->vertices;
-	vertex_t *src_idx, *dest_idx;
+	vertex_t *head, *src_idx, *dest_idx;
 	int check;
 
 	if (head == NULL || src == NULL || dest == NULL)
 		return (0);
-	
+	head = graph->vertices;
 	src_idx = search_content(head, src);
 	head = graph->vertices;
 	dest_idx = search_content(head, dest);
