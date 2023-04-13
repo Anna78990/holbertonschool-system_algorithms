@@ -1,11 +1,5 @@
 #include "graphs.h"
 
-typedef struct node {
-    vertex_t *node;
-    struct node *next;
-} node_vertex;
-
-
 /**
  * pop - free the head node of vertex nodes
  * @head: double pointer to head node

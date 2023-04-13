@@ -66,6 +66,19 @@ typedef struct graph_s
     vertex_t    *vertices;
 } graph_t;
 
+/**
+ * struct node - node to vertices
+ * We use an adjacency linked list to represent our graph
+ *
+ * @node: adresse to node
+ * @next: Pointer to the next node
+ */
+
+typedef struct node
+{
+	vertex_t *node;
+	struct node *next;
+} node_vertex;
 
 void graph_display(const graph_t *graph);
 graph_t *graph_create(void);
