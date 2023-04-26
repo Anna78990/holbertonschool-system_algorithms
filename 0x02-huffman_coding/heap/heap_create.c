@@ -5,12 +5,12 @@
  *
  * @data_cmp: pointer to function to use
  *
- * Return: Difference between the two strings
+ * Return: pointer to the created heap or NULL if it fails
  */
 
 heap_t *heap_create(int (*data_cmp)(void *, void *))
 {
-	heap_t *new = malloc(sizeof(new));
+	heap_t *new = malloc(sizeof(heap_t));
 
 	if (!new)
 		return (NULL);
