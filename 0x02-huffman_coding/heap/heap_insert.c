@@ -101,8 +101,10 @@ binary_tree_node_t *heap_insert(heap_t *heap, void *data)
 	new = insert_node(heap->root, data, heap->size);
 	if (!new)
 		return (NULL);
-	if (new->parent->right == NULL && new->parent->data < new->data)
+	if (new->parent && heap->data_cmp(new->data, new->parent->data) < 0)
+	{
 		swap(new->parent->data, new->data);
+	}
 	heap->size += 1;
 	return (new);
 }
