@@ -58,9 +58,10 @@ int no_adjacent_red_nodes(const rb_tree_t *tree)
  */
 int black_node_count(const rb_tree_t *tree)
 {
+	int count = 0;
+
 	if (tree == NULL)
 		return (0);
-	int count = 0;
 
 	while (tree != NULL)
 	{
@@ -82,11 +83,13 @@ int black_node_count(const rb_tree_t *tree)
  */
 int same_black_node_count(const rb_tree_t *tree)
 {
+	int left_count, right_count;
+
 	if (tree == NULL)
 		return (1);
 
-	int left_count = black_node_count(tree->left);
-	int right_count = black_node_count(tree->right);
+	left_count = black_node_count(tree->left);
+	right_count = black_node_count(tree->right);
 
 	if (left_count != right_count)
 		return (0);
