@@ -10,11 +10,10 @@
 rb_tree_t *array_to_rb_tree(int *array, size_t size)
 {
 	size_t i;
+	rb_tree_t *root = NULL;
 
 	if (array == NULL || size == 0)
 		return (NULL);
-
-	rb_tree_t *root = NULL;
 
 	for (i = 0; i < size; i++)
 		rb_tree_insert(&root, array[i]);
