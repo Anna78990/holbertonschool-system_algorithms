@@ -9,7 +9,7 @@
  */
 rb_tree_t *rb_tree_remove(rb_tree_t *root, int n)
 {
-	rb_tree_t *target, *successor;
+	rb_tree_t *target, *successor, *child, *parent;
 
 	if (root == NULL)
 		return (NULL);
@@ -24,8 +24,8 @@ rb_tree_t *rb_tree_remove(rb_tree_t *root, int n)
 		target->n = successor->n;
 		target = successor;
 	}
-	rb_tree_t *child = target->left ? target->left : target->right;
-	rb_tree_t *parent = target->parent;
+	*child = target->left ? target->left : target->right;
+	*parent = target->parent;
 
 	if (child)
 		child->parent = parent;
