@@ -1,66 +1,121 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "rb_trees.h"
 
-rb_tree_t *rb_tree_insert(rb_tree_t **tree, int value);
-
 /**
- * rotate_left - Perform a left rotation on a node
- * @node: Pointer to the node
+ * rb_rotate_left - Performs a left rotation on a Red-Black Tree
+ * @tree: Double pointer to the root node of the Red-Black Tree
+ * @node: Pointer to the node to rotate
  */
-static void rotate_left(rb_tree_t **node)
+void rb_rotate_left(rb_tree_t **tree, rb_tree_t *node)
 {
-	rb_tree_t *pivot = (*node)->right;
+	rb_tree_t *right = node->right;
 
-	if (pivot != NULL)
-	{
-		(*node)->right = pivot->left;
-		if (pivot->left != NULL)
-			pivot->left->parent = *node;
+	node->right = right->left;
 
-		pivot->parent = (*node)->parent;
-		if ((*node)->parent != NULL)
-		{
-			if (*node == (*node)->parent->left)
-				(*node)->parent->left = pivot;
-			else
-				(*node)->parent->right = pivot;
-		}
+	if (right->left != NULL)
+		right->left->parent = node;
+	right->parent = node->parent;
 
-		pivot->left = *node;
-		(*node)->parent = pivot;
+	if (node->parent == NULL)
+		*tree = right;
+	else if (node == node->parent->left)
+		node->parent->left = right;
+	else
+		node->parent->right = right;
 
-		*node = pivot;
-	}
+	right->left = node;
+	node->parent = right;
 }
 
 /**
- * rotate_right - Perform a right rotation on a node
- * @node: Pointer to the node
+ * rb_rotate_right - Performs a right rotation on a Red-Black Tree
+ * @tree: Double pointer to the root node of the Red-Black Tree
+ * @node: Pointer to the node to rotate
  */
-static void rotate_right(rb_tree_t **node)
+void rb_rotate_right(rb_tree_t **tree, rb_tree_t *node)
 {
-	rb_tree_t *pivot = (*node)->left;
+	rb_tree_t *left = node->left;
 
-	if (pivot != NULL)
+	node->left = left->right;
+
+	if (left->right != NULL)
+		left->right->parent = node;
+
+	left->parent = node->parent;
+
+	if (node->parent == NULL)
+		*tree = left;
+	else if (node == node->parent->right)
+		node->parent->right = left;
+	else
+		node->parent->left = left;
+
+	left->right = node;
+	node->parent = left;
+}
+
+/**
+ * rb_insert_fixup - Fixes the Red-Black Tree properties after insertion
+ * @tree: Double pointer to the root node of the Red-Black Tree
+ * @node: Pointer to the newly inserted node
+ */
+void rb_insert_fixup(rb_tree_t **tree, rb_tree_t *node)
+{
+	rb_tree_t *parent, *grandparent, *uncle;
+
+	while (node != *tree && node->color == RED && node->parent->color == RED)
 	{
-		(*node)->left = pivot->right;
-		if (pivot->right != NULL)
-			pivot->right->parent = *node;
-
-		pivot->parent = (*node)->parent;
-		if ((*node)->parent != NULL)
+		parent = node->parent;
+		grandparent = parent->parent;
+		if (parent == grandparent->left)
 		{
-			if (*node == (*node)->parent->left)
-				(*node)->parent->left = pivot;
+			uncle = grandparent->right;
+			if (uncle != NULL && uncle->color == RED)
+			{
+				uncle->color = BLACK;
+				parent->color = BLACK;
+				grandparent->color = RED;
+				node = grandparent;
+			}
 			else
-				(*node)->parent->right = pivot;
+			{
+				if (node == parent->right)
+				{
+					rb_rotate_left(tree, parent);
+					node = parent;
+					parent = node->parent;
+				}
+				rb_rotate_right(tree, grandparent);
+				parent->color = BLACK;
+				grandparent->color = RED;
+			}
 		}
-
-		pivot->right = *node;
-		(*node)->parent = pivot;
-
-		*node = pivot;
+		else
+		{
+			uncle = grandparent->left;
+			if (uncle != NULL && uncle->color == RED)
+			{
+				uncle->color = BLACK;
+				parent->color = BLACK;
+				grandparent->color = RED;
+				node = grandparent;
+			}
+			else
+			{
+				if (node == parent->left)
+				{
+					rb_rotate_right(tree, parent);
+					node = parent;
+					parent = node->parent;
+				}
+				rb_rotate_left(tree, grandparent);
+				parent->color = BLACK;
+				grandparent->color = RED;
+			}
+		}
 	}
+	(*tree)->color = BLACK;
 }
 
 /**
@@ -68,117 +123,39 @@ static void rotate_right(rb_tree_t **node)
  * @tree: Double pointer to the root node of the Red-Black Tree
  * @value: Value to be inserted
  *
- * Return: Pointer to the created node, or NULL on failure
+ * Return: Pointer to the created node, or NULL on failure or if value already exists
  */
 rb_tree_t *rb_tree_insert(rb_tree_t **tree, int value)
 {
-	rb_tree_t *node, *parent, *grandparent, *uncle;
+	rb_tree_t *parent = NULL;
+	rb_tree_t *current = *tree;
+	rb_tree_t *new_node = NULL;
 
-	/* Create new node */
-	node = malloc(sizeof(rb_tree_t));
-	if (node == NULL)
-		return NULL;
-
-	node->n = value;
-	node->color = RED;
-	node->parent = NULL;
-	node->left = NULL;
-	node->right = NULL;
-
-	/* Insert node into the Red-Black Tree */
-	if (*tree == NULL)
+	while (current != NULL)
 	{
-		/* Empty tree, make the new node the root */
-		*tree = node;
-		node->color = BLACK;
-		return node;
-	}
+		parent = current;
 
-	/* Find the appropriate position to insert the node */
-	parent = NULL;
-	grandparent = NULL;
-	uncle = NULL;
-	node->parent = *tree;
+		if (value == current->n)
+			return (NULL);
 
-	while (node->parent != NULL)
-	{
-		if (value == node->parent->n)
-		{
-			/* Value already exists, ignore */
-			free(node);
-			return NULL;
-		}
-		else if (value < node->parent->n)
-		{
-			parent = node->parent;
-			node->parent = parent->left;
-		}
+		if (value < current->n)
+			current = current->left;
 		else
-		{
-			parent = node->parent;
-			node->parent = parent->right;
-		}
-
-		if (node->parent != NULL && node->parent->color == RED)
-		{
-			if (parent->left == node->parent)
-			{
-				grandparent = parent->parent;
-				uncle = grandparent->right;
-			}
-			else
-			{
-				grandparent = parent->parent;
-				uncle = grandparent->left;
-			}
-
-			if (uncle != NULL && uncle->color == RED)
-			{
-				parent->color = BLACK;
-				uncle->color = BLACK;
-				grandparent->color = RED;
-				node = grandparent;
-			}
-			else
-			{
-				if (parent->left == node && grandparent->left == parent)
-				{
-					rotate_right(&grandparent);
-					parent->color = BLACK;
-					grandparent->color = RED;
-				}
-				else if (parent->right == node && grandparent->right == parent)
-				{
-					rotate_left(&grandparent);
-					parent->color = BLACK;
-					grandparent->color = RED;
-				}
-				else if (parent->left == node && grandparent->right == parent)
-				{
-					rotate_right(&parent);
-					node = node->right;
-				}
-				else if (parent->right == node && grandparent->left == parent)
-				{
-					rotate_left(&parent);
-					node = node->left;
-				}
-
-				parent = node->parent;
-				parent->color = BLACK;
-				grandparent = parent->parent;
-				grandparent->color = RED;
-
-				if (parent->left == node)
-					rotate_right(&grandparent);
-				else
-					rotate_left(&grandparent);
-			}
-
-			return node;
-		}
+			current = current->right;
 	}
 
-	return node;
-}
+	new_node = rb_tree_node(parent, value, RED);
+	if (new_node == NULL)
+		return (NULL);
 
+	if (parent == NULL)
+		*tree = new_node;
+	else if (value < parent->n)
+		parent->left = new_node;
+	else
+		parent->right = new_node;
+
+	rb_insert_fixup(tree, new_node);
+
+	return (new_node);
+}
