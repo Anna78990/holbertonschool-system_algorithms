@@ -53,21 +53,30 @@ void rb_rotate_right(rb_tree_t **tree, rb_tree_t *node)
 	node->parent = left;
 }
 
-void left_sibling(rb_tree_t **root, rb_tree_t *child, rb_tree_t *parent, rb_tree_t *sibling)
+
+/**
+ * left_sibling - Processing when the corresponding child node is on the right
+ * @root: Double pointer to the root node of the Red-Black Tree
+ * @child: Pointer to the child node of the deleted node
+ * @parent: Pointer to the parent node of the deleted node
+ * @sibling: Pointer to the sibling node
+ */
+void left_sibling(rb_tree_t **root, rb_tree_t **child,
+		rb_tree_t **parent, rb_tree_t *sibling)
 {
 	if (sibling->color == RED)
 	{
 		sibling->color = BLACK;
-		parent->color = RED;
-		rb_rotate_left(root, parent);
-		sibling = parent->right;
+		(*parent)->color = RED;
+		rb_rotate_left(root, *parent);
+		sibling = (*parent)->right;
 	}
 	if ((sibling->left == NULL || sibling->left->color == BLACK) &&
-	(sibling->right == NULL || sibling->right->color == BLACK))
+		(sibling->right == NULL || sibling->right->color == BLACK))
 	{
 		sibling->color = RED;
-		child = parent;
-		parent = child->parent;
+		*child = *parent;
+		*parent = (*child)->parent;
 	}
 	else
 	{
@@ -76,33 +85,41 @@ void left_sibling(rb_tree_t **root, rb_tree_t *child, rb_tree_t *parent, rb_tree
 			sibling->left->color = BLACK;
 			sibling->color = RED;
 			rb_rotate_right(root, sibling);
-			sibling = parent->right;
+			sibling = (*parent)->right;
 		}
-		sibling->color = parent->color;
-		parent->color = BLACK;
+		sibling->color = (*parent)->color;
+		(*parent)->color = BLACK;
 		if (sibling->right != NULL)
 			sibling->right->color = BLACK;
-		rb_rotate_left(root, parent);
-		child = *root;
+		rb_rotate_left(root, *parent);
+		*child = *root;
 		return;
 	}
 }
 
-void right_sibling(rb_tree_t **root, rb_tree_t *child, rb_tree_t *parent, rb_tree_t *sibling)
+/**
+ * right_sibling - Processing when the corresponding child node is on the left
+ * @root: Double pointer to the root node of the Red-Black Tree
+ * @child: Pointer to the child node of the deleted node
+ * @parent: Pointer to the parent node of the deleted node
+ * @sibling: Pointer to the sibling node
+ */
+void right_sibling(rb_tree_t **root, rb_tree_t **child,
+		rb_tree_t **parent, rb_tree_t *sibling)
 {
 	if (sibling->color == RED)
 	{
 		sibling->color = BLACK;
-		parent->color = RED;
-		rb_rotate_right(root, parent);
-		sibling = parent->left;
+		(*parent)->color = RED;
+		rb_rotate_right(root, *parent);
+		sibling = (*parent)->left;
 	}
 	if ((sibling->right == NULL || sibling->right->color == BLACK) &&
-	(sibling->left == NULL || sibling->left->color == BLACK))
+		(sibling->left == NULL || sibling->left->color == BLACK))
 	{
 		sibling->color = RED;
-		child = parent;
-		parent = child->parent;
+		*child = *parent;
+		*parent = (*child)->parent;
 	}
 	else
 	{
@@ -111,18 +128,17 @@ void right_sibling(rb_tree_t **root, rb_tree_t *child, rb_tree_t *parent, rb_tre
 			sibling->right->color = BLACK;
 			sibling->color = RED;
 			rb_rotate_left(root, sibling);
-			sibling = parent->left;
+			sibling = (*parent)->left;
 		}
-		sibling->color = parent->color;
-		parent->color = BLACK;
+		sibling->color = (*parent)->color;
+		(*parent)->color = BLACK;
 		if (sibling->left != NULL)
 			sibling->left->color = BLACK;
-		rb_rotate_right(root, parent);
-		child = *root;
+		rb_rotate_right(root, *parent);
+		*child = *root;
 		return;
 	}
 }
-
 
 /**
  * rb_tree_delete_fixup - Fixes the Red-Black Tree properties after deletion
@@ -130,7 +146,8 @@ void right_sibling(rb_tree_t **root, rb_tree_t *child, rb_tree_t *parent, rb_tre
  * @child: Pointer to the child node of the deleted node
  * @parent: Pointer to the parent node of the deleted node
  */
-void rb_tree_delete_fixup(rb_tree_t **root, rb_tree_t *child, rb_tree_t *parent)
+void rb_tree_delete_fixup(rb_tree_t **root, rb_tree_t *child,
+		rb_tree_t *parent)
 {
 	rb_tree_t *sibling;
 
@@ -139,12 +156,12 @@ void rb_tree_delete_fixup(rb_tree_t **root, rb_tree_t *child, rb_tree_t *parent)
 		if (child == parent->left)
 		{
 			sibling = parent->right;
-			left_sibling(root, child, parent, sibling);
+			left_sibling(root, &child, &parent, sibling);
 		}
 		else
 		{
 			sibling = parent->left;
-			right_sibling(root, child, parent, sibling);
+			right_sibling(root, &child, &parent, sibling);
 		}
 	}
 	if (child != NULL)
