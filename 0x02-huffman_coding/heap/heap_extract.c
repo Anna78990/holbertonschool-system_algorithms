@@ -1,90 +1,100 @@
+#include <stdlib.h>
 #include "heap.h"
 
-/**
- * search_node - find n-th node of tree
- * @node: pointer to root node
- * @n: index of node
- *
- * Return: pointer to specified node or NULL on error
- */
-binary_tree_node_t *search_node(binary_tree_node_t *node, int n)
-{
-	int bit_idx, mask;
 
-	if (!node || n < 0)
+/**
+ * swap_node_data - Swaps the positions of two nodes in a binary heap
+ * @node1: Pointer to the first node
+ * @node2: Pointer to the second node
+ */
+void swap_node_data(binary_tree_node_t *node1, binary_tree_node_t *node2)
+{
+	void *tmp_data = node1->data;
+
+	node1->data = node2->data;
+	node2->data = tmp_data;
+}
+
+/**
+ * get_last_node - Retrieves the last node in the heap
+ * @heap: Pointer to the heap
+ *
+ * Return: Pointer to the last node, or NULL if the heap is empty
+ */
+binary_tree_node_t *get_last_node(heap_t *heap)
+{
+	binary_tree_node_t *current;
+
+	if (heap == NULL || heap->root == NULL)
 		return (NULL);
 
-	for (bit_idx = 0; 1 << (bit_idx + 1) <=  n; ++bit_idx)
-		;
-	for (--bit_idx; bit_idx >= 0; --bit_idx)
-	{
-		mask = 1 << bit_idx;
-		if (n & mask)
-		{
-			if (node->right)
-				node = node->right;
-			else
-				break;
-		}
-		else
-		{
-			if (node->left)
-				node = node->left;
-			else
-				break;
-		}
-	}
-	return (node);
+	current = heap->root;
+	while (current->right != NULL)
+		current = current->right;
+	if (current->left != NULL)
+		current = current->left;
+	return (current);
 }
 
-
 /**
- * extract_root - swaps data of root and last node in tree
- * @heap: pointer to heap to extract root from
- *
- * node containing original data of root will be freed
- *
- * Return: data of exactracted root node
+ * heapify_down - Restores the heap property by heapifying down
+ * @heap: Pointer to the heap
+ * @node: Pointer to the node to start heapifying down from
  */
-void *extract_root(heap_t *heap)
+void heapify_down(heap_t *heap, binary_tree_node_t *node)
 {
-	binary_tree_node_t *node;
-	void *data;
+	binary_tree_node_t *smallest, *left, *right;
 
-	node = find_parents(heap->root, 0, heap->size);
-	if (node->left == NULL && node->right == NULL)
-		node = node->parent;
-	if (node->parent)
+	if (heap == NULL || node == NULL)
+		return;
+
+	smallest = node;
+	left = node->left;
+	if (left != NULL && heap->data_cmp(left->data, smallest->data) < 0)
+		smallest = left;
+
+	right = node->right;
+	if (right != NULL && heap->data_cmp(right->data, smallest->data) < 0)
+		smallest = right;
+
+	if (smallest != node)
 	{
-		data = swap_nodes(heap->root, node);
-		if (node->parent->left == node)
-			node->parent->left = NULL;
-		else
-			node->parent->right = NULL;
+		swap_node_data(node, smallest);
+		heapify_down(heap, smallest);
 	}
-	else
-	{
-		data = heap->root->data;
-		heap->root = NULL;
-	}
-	free(node);
-	if (--heap->size == 0)
-		heap->root = NULL;
-	return (data);
 }
 
 /**
- * heap_extract - extract root value from binary heap and restore heap property
- * @heap: pointer to heap to extract from
+ * heap_extract - Extracts the root value of a Min Binary Heap
+ * @heap: Pointer to the heap from which to extract the value
  *
- * Return: pointer to data stored in extracted root node or NULL on error
+ * Return: Pointer to the data that was stored in the root node of the heap,
+ *		 or NULL if the function fails or the heap is NULL
  */
 void *heap_extract(heap_t *heap)
 {
-	void *data;
+	void *extracted_data;
+	binary_tree_node_t *last_node;
 
-	if (!heap)
+	if (heap == NULL || heap->root == NULL)
 		return (NULL);
-	data = extract_root(heap);
-	return (data);
+
+	extracted_data = heap->root->data;
+	heap->root->data = last_node->data;
+	last_node = get_last_node(heap);
+	if (last_node->parent != NULL)
+	{
+		if (last_node->parent->left == last_node)
+			last_node->parent->left = NULL;
+		else
+			last_node->parent->right = NULL;
+	}
+
+	heapify_down(heap, heap->root);
+
+	free(last_node);
+
+	heap->size--;
+
+	return (extracted_data);
 }
