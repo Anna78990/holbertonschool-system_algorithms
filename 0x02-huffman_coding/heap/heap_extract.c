@@ -80,8 +80,8 @@ void *heap_extract(heap_t *heap)
 		return (NULL);
 
 	extracted_data = heap->root->data;
-	heap->root->data = last_node->data;
 	last_node = get_last_node(heap);
+	heap->root->data = last_node->data;
 	if (last_node->parent != NULL)
 	{
 		if (last_node->parent->left == last_node)
