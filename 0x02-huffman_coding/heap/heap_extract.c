@@ -43,26 +43,29 @@ binary_tree_node_t *get_last_node(heap_t *heap)
  */
 void heapify_down(heap_t *heap, binary_tree_node_t *node)
 {
-	binary_tree_node_t *smallest, *left, *right;
+    binary_tree_node_t *min;
+    binary_tree_node_t *temp;
 
-	if (heap == NULL || node == NULL)
-		return;
+    while (1) {
+        min = node;
 
-	smallest = node;
-	left = node->left;
-	if (left != NULL && heap->data_cmp(left->data, smallest->data) < 0)
-		smallest = left;
+        if (node->left != NULL && heap->data_cmp(node->left->data, min->data) < 0)
+            min = node->left;
 
-	right = node->right;
-	if (right != NULL && heap->data_cmp(right->data, smallest->data) < 0)
-		smallest = right;
+        if (node->right != NULL && heap->data_cmp(node->right->data, min->data) < 0)
+            min = node->right;
 
-	if (smallest != node)
-	{
-		swap_node_data(node, smallest);
-		heapify_down(heap, smallest);
-	}
+        if (min != node) {
+            temp = node->data;
+            node->data = min->data;
+            min->data = temp;
+            node = min;
+        } else {
+            break;
+        }
+    }
 }
+
 
 /**
  * heap_extract - Extracts the root value of a Min Binary Heap
@@ -73,28 +76,38 @@ void heapify_down(heap_t *heap, binary_tree_node_t *node)
  */
 void *heap_extract(heap_t *heap)
 {
-	void *extracted_data;
-	binary_tree_node_t *last_node;
+    void *extracted_data;
+    binary_tree_node_t *last_node;
 
-	if (heap == NULL || heap->root == NULL)
-		return (NULL);
+    if (heap == NULL || heap->root == NULL)
+        return NULL;
 
-	extracted_data = heap->root->data;
-	last_node = get_last_node(heap);
-	heap->root->data = last_node->data;
-	if (last_node->parent != NULL)
-	{
-		if (last_node->parent->left == last_node)
-			last_node->parent->left = NULL;
-		else
-			last_node->parent->right = NULL;
-	}
+    extracted_data = heap->root->data;
 
-	heapify_down(heap, heap->root);
+    if (heap->size == 1) {
+        free(heap->root);
+        heap->root = NULL;
+        heap->size--;
+        return extracted_data;
+    }
 
-	free(last_node);
+    last_node = get_last_node(heap);
+    heap->root->data = last_node->data;
 
-	heap->size--;
+    if (last_node->parent->left == last_node)
+        last_node->parent->left = NULL;
+    else
+        last_node->parent->right = NULL;
 
-	return (extracted_data);
+    if (last_node->parent != heap->root)
+        heapify_down(heap, last_node->parent);
+    else
+        heapify_down(heap, heap->root);
+
+    free(last_node);
+
+    heap->size--;
+
+    return extracted_data;
 }
+
