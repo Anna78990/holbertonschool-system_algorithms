@@ -2,6 +2,7 @@
 #define NARY_TREES_H
 
 #include <stdio.h>
+#include <stdlib.h>
 
 /**
  * struct nary_tree_s - N-ary tree node structure
@@ -22,5 +23,6 @@ typedef struct nary_tree_s
 } nary_tree_t;
 
 nary_tree_t *nary_tree_insert(nary_tree_t *parent, char const *str);
+void nary_tree_delete(nary_tree_t *tree);
 
 #endif
