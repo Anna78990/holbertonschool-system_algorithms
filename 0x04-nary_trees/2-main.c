@@ -11,6 +11,7 @@ void print_node(nary_tree_t const *node, size_t depth)
 int main(void)
 {
     nary_tree_t *root, *tmp, *var, *opt, *betty, *home, *alex;
+    size_t depth;
 
     root = nary_tree_insert(NULL, "/");
     if (!root)
@@ -39,8 +40,8 @@ int main(void)
     nary_tree_insert(alex, "Documents");
     nary_tree_insert(alex, "Applications");
 
-    nary_tree_traverse(root, &print_node);
-
+    depth = nary_tree_traverse(root, &print_node);
+    printf("depth is %d\n", (int)depth);
     nary_tree_delete(root);
 
     return (EXIT_SUCCESS);
