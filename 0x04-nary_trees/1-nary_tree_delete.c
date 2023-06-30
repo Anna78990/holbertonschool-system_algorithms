@@ -34,5 +34,7 @@ void free_child(nary_tree_t *tree, nary_tree_t *root)
  */
 void nary_tree_delete(nary_tree_t *tree)
 {
+	if (!tree)
+		return;
 	free_child(tree, tree);
 }
