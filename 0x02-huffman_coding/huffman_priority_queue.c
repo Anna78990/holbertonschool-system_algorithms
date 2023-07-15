@@ -2,8 +2,7 @@
 #include "heap.h"
 #include "huffman.h"
 
-void symbol_free(void *data);
-void binary_tree_delete(binary_tree_node_t *tree, void (*free_data)(void *));
+void data_free(void *data);
 
 /**
  * symbol_cmp - compare pointer s1 and s2
@@ -14,15 +13,10 @@ void binary_tree_delete(binary_tree_node_t *tree, void (*free_data)(void *));
  */
 int symbol_cmp(void *s1, void *s2)
 {
-	symbol_t *sym1 = (symbol_t *)s1;
-	symbol_t *sym2 = (symbol_t *)s2;
+	symbol_t *sym1 = ((binary_tree_node_t *)s1)->data;
+	symbol_t *sym2 = ((binary_tree_node_t *)s2)->data;
 
-	if (sym1->freq < sym2->freq)
-		return (-1);
-	else if (sym1->freq > sym2->freq)
-		return (1);
-	else
-		return (0);
+	return (sym1->freq - sym2->freq);
 }
 
 
@@ -40,9 +34,11 @@ heap_t *huffman_priority_queue(char *data, size_t *freq, size_t size)
 {
 	heap_t *priority_queue;
 	symbol_t *symbol;
-	binary_tree_node_t *node;
+	binary_tree_node_t *node, *node2;
 	size_t i;
 
+	if (!size || !data || !freq)
+		return (NULL);
 	priority_queue = heap_create(symbol_cmp);
 	if (priority_queue == NULL)
 		return (NULL);
@@ -52,22 +48,20 @@ heap_t *huffman_priority_queue(char *data, size_t *freq, size_t size)
 		symbol = symbol_create(data[i], freq[i]);
 		if (symbol == NULL)
 		{
-			heap_delete(priority_queue, symbol_free);
+			heap_delete(priority_queue, data_free);
 			return (NULL);
 		}
-
 		node = binary_tree_node(NULL, symbol);
 		if (node == NULL)
 		{
-			symbol_free(symbol);
-			heap_delete(priority_queue, symbol_free);
+			data_free(symbol);
+			heap_delete(priority_queue, data_free);
 			return (NULL);
 		}
-
-		if (heap_insert(priority_queue, node) == NULL)
+		node2 = heap_insert(priority_queue, node);
+		if (!node2)
 		{
-			binary_tree_delete(node, symbol_free);
-			heap_delete(priority_queue, symbol_free);
+			heap_delete(priority_queue, data_free);
 			return (NULL);
 		}
 	}
@@ -75,30 +69,13 @@ heap_t *huffman_priority_queue(char *data, size_t *freq, size_t size)
 	return (priority_queue);
 }
 
+
 /**
- * symbol_free - free symbol
+ * data_free - free symbol
  * @data: data to free
  */
-void symbol_free(void *data)
+void data_free(void *data)
 {
-	symbol_t *symbol = (symbol_t *)data;
-
-	free(symbol);
-}
-
-/**
- * binary_tree_delete - delete given binary tree
- * @tree: root of tree
- * @free_data: function to free
- */
-void binary_tree_delete(binary_tree_node_t *tree, void (*free_data)(void *))
-{
-	if (tree != NULL)
-	{
-		binary_tree_delete(tree->left, free_data);
-		binary_tree_delete(tree->right, free_data);
-		if (free_data != NULL)
-			free_data(tree->data);
-		free(tree);
-	}
+	free(((binary_tree_node_t *)data)->data);
+	free(data);
 }
