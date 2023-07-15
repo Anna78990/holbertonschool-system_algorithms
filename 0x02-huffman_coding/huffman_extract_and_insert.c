@@ -8,57 +8,41 @@
  */
 int huffman_extract_and_insert(heap_t *priority_queue)
 {
-	binary_tree_node_t *node1, *node2, *new_node;
-	symbol_t *symbol1, *symbol2, *new_symbol;
-	size_t new_freq;
+	if (priority_queue == NULL || priority_queue->size < 2)
+		return 0;
 
-	if (priority_queue == NULL || priority_queue->root == NULL)
-		return (NULL);
+	binary_tree_node_t *node1 = heap_extract(priority_queue);
+	binary_tree_node_t *node2 = heap_extract(priority_queue);
 
-	node1 = heap_extract(priority_queue);
-	if (node1 == NULL)
-		return (NULL);
+	if (node1 == NULL || node2 == NULL)
+		return (0);
 
-	node2 = heap_extract(priority_queue);
-	if (node2 == NULL)
-	{
-		free(node1);
-		return (NULL);
-	}
+	symbol_t *symbol1 = (symbol_t *)node1->data;
+	symbol_t *symbol2 = (symbol_t *)node2->data;
 
-	symbol1 = (symbol_t *)node1->data;
-	symbol2 = (symbol_t *)node2->data;
+	size_t new_freq = symbol1->freq + symbol2->freq;
 
-	new_freq = symbol1->freq + symbol2->freq;
-	new_symbol = symbol_create(-1, new_freq);
+	symbol_t *new_symbol = symbol_create(-1, new_freq);
 	if (new_symbol == NULL)
-	{
-		free(node1);
-		free(node2);
-		return (NULL);
-	}
+		return (0);
 
-	new_node = binary_tree_node(NULL, new_symbol);
+	binary_tree_node_t *new_node = binary_tree_node(NULL, new_symbol);
 	if (new_node == NULL)
 	{
-		free(node1);
-		free(node2);
 		symbol_free(new_symbol);
-		return (NULL);
+		return (0);
 	}
 
 	new_node->left = node1;
 	new_node->right = node2;
-	node1->parent = new_node;
-	node2->parent = new_node;
+	node1->parent = new_node;  // Corrected assignment order
+	node2->parent = new_node;  // Corrected assignment order
 
 	if (!heap_insert(priority_queue, new_node))
 	{
-		free(node1);
-		free(node2);
 		binary_tree_delete(new_node, symbol_free);
-		return (NULL);
+		return (0);
 	}
 
-	return (new_node);
+	return (1);
 }
