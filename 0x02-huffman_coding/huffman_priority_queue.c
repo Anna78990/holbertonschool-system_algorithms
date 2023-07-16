@@ -9,7 +9,7 @@ void data_free(void *data);
  * @s1: pointer to compare
  * @s2: pointer to compare
  * Return: if s1 is larger than s2 return 1, and -1 vice versa,
- *	   and returns 0 if neither is the case
+ *	   otherwise returns 0
  */
 int symbol_cmp(void *s1, void *s2)
 {
@@ -22,13 +22,11 @@ int symbol_cmp(void *s1, void *s2)
 
 /**
  * huffman_priority_queue - Creates a priority queue
- *			    (min heap) for Huffman coding
  * @data: Array of characters
- * @freq: Array of frequencies associated with each character
+ * @freq: Array of frequencies 
  * @size: Size of the arrays
- *
  * Return: Pointer to the created min heap (priority queue),
- *	   or NULL if it fails
+ *	   or NULL on failure
  */
 heap_t *huffman_priority_queue(char *data, size_t *freq, size_t size)
 {
