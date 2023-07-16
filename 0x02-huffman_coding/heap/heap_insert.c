@@ -1,110 +1,70 @@
 #include "heap.h"
-#include <stdlib.h>
-#include <stdio.h>
+#include <string.h>
+
 
 /**
- * swap - swap two value
- * @parent : 1st value
- * @val_node : 2sd value
+ * convert_to_bin - converts a number to a custom base
+ * @num: the number to convert
+ * Return: pointer to string containing digits in new base
  */
-void swap(int *parent, int *val_node)
+char *convert_to_bin(long num)
 {
-	int tmp;
+	char *BITS = "01", *ptr;
+	static char buf[66];
 
-	tmp = *val_node;
-	*val_node = *parent;
-	*parent = tmp;
+	ptr = &buf[sizeof(buf)];
+	*--ptr = 0;
+	do {
+		*--ptr = BITS[num % 2];
+		num /= 2;
+	} while (num);
+	return (ptr);
 }
 
 /**
- * find_parent - find the parent of the node to insert
- * @tree : tree to search
- * @index : index of the tree
- * @size : size of the tree
- *
- * Return: the parent of the node to insert
- */
-binary_tree_node_t *find_parent(binary_tree_node_t  *tree, int index, int size)
-{
-	binary_tree_node_t  *left, *right;
-
-	if (index == size)
-		return (tree);
-
-	if (index > size)
-		return (NULL);
-
-	left = find_parent(tree->left, 2 * index + 1, size);
-	right = find_parent(tree->right, 2 * index + 2, size);
-
-	if (left)
-		return (left);
-	else if (right)
-		return (right);
-	else
-		return (NULL);
-
-}
-
-/**
- * insert_node - insert the node
- * @tree : tree into insert the node
- * @data : data of node
- * @size : size
- *
- * Return: tree
- */
-binary_tree_node_t *insert_node(binary_tree_node_t *tree,
-		void *data, size_t size)
-{
-	binary_tree_node_t *new;
-	binary_tree_node_t *p;
-
-	if (size > 1)
-		p = find_parent(tree, 0, (size - 1) / 2);
-	else
-		p = tree;
-
-	new = binary_tree_node(p, data);
-	if (!new)
-		return (NULL);
-	if (!p->left)
-		p->left = new;
-	else
-		p->right = new;
-	return (new);
-
-}
-
-
-/**
- * heap_insert - insertion of heap
- *
- * @heap: heap to insert
- * @data: data to insert
- *
- * Return: New node
+ * heap_insert - inserts new node into min heap
+ * @heap: pointer to heap structure
+ * @data: pointer to data
+ * Return: pointer to new node or NULL
  */
 binary_tree_node_t *heap_insert(heap_t *heap, void *data)
 {
-	binary_tree_node_t  *new;
+	size_t i;
+	binary_tree_node_t *new_node, *node;
+	char *bit;
+	void *temp;
 
-	if (heap == NULL || data == NULL)
+	if (!heap)
 		return (NULL);
+	new_node = binary_tree_node(NULL, data);
+	if (!new_node)
+		return (NULL);
+	heap->size += 1;
 	if (!heap->root)
 	{
-		heap->size += 1;
-		new = binary_tree_node(heap->root, data);
-		heap->root = new;
-		return (new);
+		heap->root = new_node;
+		return (new_node);
 	}
-	new = insert_node(heap->root, data, heap->size);
-	if (!new)
-		return (NULL);
-	if (new->parent && heap->data_cmp(new->data, new->parent->data) < 0)
+	bit = convert_to_bin(heap->size);
+	for (node = heap->root, i = 1; i < strlen(bit) - 1; i++)
 	{
-		swap(new->parent->data, new->data);
+		if (bit[i] == '1')
+			node = node->right;
+		else
+			node = node->left;
 	}
-	heap->size += 1;
-	return (new);
+	if (bit[i] == '1')
+		node->right = new_node;
+	else
+		node->left = new_node;
+	new_node->parent = node, node = new_node;
+	while (node->parent &&
+			heap->data_cmp(node->parent->data, node->data) > 0)
+	{
+		temp = node->data;
+		node->data = node->parent->data;
+		node->parent->data = temp;
+		node = node->parent;
+	}
+	return (new_node);
 }
