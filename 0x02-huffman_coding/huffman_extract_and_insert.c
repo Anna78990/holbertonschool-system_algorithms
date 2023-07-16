@@ -1,3 +1,4 @@
+
 #include <stdlib.h>
 #include "heap.h"
 #include "huffman.h"
@@ -14,11 +15,11 @@ int huffman_extract_and_insert(heap_t *priority_queue)
 	binary_tree_node_t *node1, *node2, *new_node;
 	symbol_t *symbol1, *symbol2, *new_symbol;
 
-	if (!priority_queue)
+	if (!priority_queue || priority_queue->size < 2)
 		return (0);
 	node1 = heap_extract(priority_queue);
 	node2 = heap_extract(priority_queue);
-	if (!node1 || node2)
+	if (!node1 || !node2)
 		return (0);
 
 	symbol1 = (symbol_t *)node1->data;
@@ -26,8 +27,10 @@ int huffman_extract_and_insert(heap_t *priority_queue)
 
 	new_symbol = symbol_create(-1, symbol1->freq + symbol2->freq);
 	if (!new_symbol)
+	{
+		free(new_symbol);
 		return (0);
-
+	}
 	new_node = binary_tree_node(NULL, new_symbol);
 	if (!new_node)
 	{
@@ -41,9 +44,9 @@ int huffman_extract_and_insert(heap_t *priority_queue)
 	node2->parent = new_node;
 	if (heap_insert(priority_queue, new_node) == NULL)
 	{
-		free(new_node);
 		return (0);
 	}
 
 	return (1);
 }
+
