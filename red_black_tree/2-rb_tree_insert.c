@@ -99,7 +99,7 @@ void rb_insert_fixup(rb_tree_t **tree, rb_tree_t *node)
 {
 	rb_tree_t *parent, *grandparent, *uncle;
 
-	while (node != *tree && node->color == RED && node->parent->color == RED)
+	while (node->parent && node->parent->color == RED)
 	{
 		parent = node->parent;
 		grandparent = parent->parent;
