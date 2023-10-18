@@ -154,10 +154,6 @@ rb_tree_t *rb_tree_insert(rb_tree_t **tree, int value)
 	while (current != NULL)
 	{
 		parent = current;
-
-		if (value == current->n)
-			return (NULL);
-
 		if (value < current->n)
 			current = current->left;
 		else if (value > current->n)

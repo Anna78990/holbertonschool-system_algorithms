@@ -16,11 +16,10 @@ rb_tree_t *rb_tree_node(rb_tree_t *parent, int value, rb_color_t color)
 	if (new_node == NULL)
 		return (NULL);
 
+	memset(new_node, 0, sizeof(*new_node));
 	new_node->n = value;
 	new_node->color	= color;
 	new_node->parent = parent;
-	new_node->left = NULL;
-	new_node->right	= NULL;
 
 	return (new_node);
 }
