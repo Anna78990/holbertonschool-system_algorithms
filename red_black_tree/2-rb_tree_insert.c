@@ -146,6 +146,8 @@ rb_tree_t *rb_tree_insert(rb_tree_t **tree, int value)
 	rb_tree_t *current = *tree;
 	rb_tree_t *new_node = NULL;
 
+	if (!tree)
+		return (NULL);
 	while (current != NULL)
 	{
 		parent = current;
