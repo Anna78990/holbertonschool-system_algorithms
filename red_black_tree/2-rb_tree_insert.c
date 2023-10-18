@@ -168,7 +168,11 @@ rb_tree_t *rb_tree_insert(rb_tree_t **tree, int value)
 		return (NULL);
 
 	if (parent == NULL)
+	{
+		new_node->color = BLACK;
 		*tree = new_node;
+		return (new_node);
+	}
 	else if (value < parent->n)
 		parent->left = new_node;
 	else
