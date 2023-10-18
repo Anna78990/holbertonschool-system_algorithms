@@ -157,8 +157,10 @@ rb_tree_t *rb_tree_insert(rb_tree_t **tree, int value)
 
 		if (value < current->n)
 			current = current->left;
-		else
+		else if (value > current->n)
 			current = current->right;
+		else
+			return (NULL);
 	}
 
 	new_node = rb_tree_node(parent, value, RED);
