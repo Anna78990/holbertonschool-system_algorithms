@@ -11,10 +11,13 @@ void rb_rotate_left(rb_tree_t **tree, rb_tree_t *node)
 {
 	rb_tree_t *right = node->right;
 
+	if (!right)
+		return;
 	node->right = right->left;
 
 	if (right->left != NULL)
 		right->left->parent = node;
+	right->left = node;
 	right->parent = node->parent;
 
 	if (node->parent == NULL)
@@ -24,7 +27,6 @@ void rb_rotate_left(rb_tree_t **tree, rb_tree_t *node)
 	else
 		node->parent->right = right;
 
-	right->left = node;
 	node->parent = right;
 }
 
@@ -37,11 +39,13 @@ void rb_rotate_right(rb_tree_t **tree, rb_tree_t *node)
 {
 	rb_tree_t *left = node->left;
 
-	node->left = left->right;
+	if (!left)
+		return;
 
+	node->left = left->right;
 	if (left->right != NULL)
 		left->right->parent = node;
-
+	left->right = node;
 	left->parent = node->parent;
 
 	if (node->parent == NULL)
@@ -51,7 +55,6 @@ void rb_rotate_right(rb_tree_t **tree, rb_tree_t *node)
 	else
 		node->parent->left = left;
 
-	left->right = node;
 	node->parent = left;
 }
 
@@ -77,13 +80,13 @@ void rb_insert_case(rb_tree_t **tree, rb_tree_t *parent, rb_tree_t *uncle,
 	{
 		if (node == parent->left)
 		{
-			rb_rotate_right(tree, parent);
 			node = parent;
+			rb_rotate_right(tree, node);
 			parent = node->parent;
 		}
-			rb_rotate_left(tree, grandparent);
-			parent->color = BLACK;
-			grandparent->color = RED;
+		parent->color = BLACK;
+		grandparent->color = RED;
+		rb_rotate_left(tree, grandparent);
 	}
 }
 
@@ -114,13 +117,13 @@ void rb_insert_fixup(rb_tree_t **tree, rb_tree_t *node)
 			{
 				if (node == parent->right)
 				{
-					rb_rotate_left(tree, parent);
-					node = parent;
+					node = node->parent;
+					rb_rotate_left(tree, node);
 					parent = node->parent;
 				}
-				rb_rotate_right(tree, grandparent);
 				parent->color = BLACK;
 				grandparent->color = RED;
+				rb_rotate_right(tree, grandparent);
 			}
 		}
 		else
@@ -173,7 +176,7 @@ rb_tree_t *rb_tree_insert(rb_tree_t **tree, int value)
 		*tree = new_node;
 		return (new_node);
 	}
-	else if (value < parent->n)
+	if (value < parent->n)
 		parent->left = new_node;
 	else
 		parent->right = new_node;
