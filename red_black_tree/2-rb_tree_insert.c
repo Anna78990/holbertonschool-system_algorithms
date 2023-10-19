@@ -65,9 +65,10 @@ void rb_rotate_right(rb_tree_t **tree, rb_tree_t *node)
  * @uncle: Pointer to the uncle node
  * @grandparent: Pointer to the grandparent node
  * @node: Pointer to the newly inserted node
+ * Return: pointer to new node
  */
-void rb_insert_case(rb_tree_t **tree, rb_tree_t *parent, rb_tree_t *uncle,
-		rb_tree_t *grandparent, rb_tree_t *node)
+rb_tree_t *rb_insert_case(rb_tree_t **tree, rb_tree_t *parent,
+		rb_tree_t *uncle, rb_tree_t *grandparent, rb_tree_t *node)
 {
 	if (uncle != NULL && uncle->color == RED)
 	{
@@ -85,9 +86,11 @@ void rb_insert_case(rb_tree_t **tree, rb_tree_t *parent, rb_tree_t *uncle,
 			parent = node->parent;
 		}
 		parent->color = BLACK;
-		grandparent->color = RED;
-		rb_rotate_left(tree, grandparent);
+		parent->parent->color = RED;
+		rb_rotate_left(tree, parent->parent);
 	}
+	return (node);
+
 }
 
 /**
@@ -97,7 +100,7 @@ void rb_insert_case(rb_tree_t **tree, rb_tree_t *parent, rb_tree_t *uncle,
  */
 void rb_insert_fixup(rb_tree_t **tree, rb_tree_t *node)
 {
-	rb_tree_t *parent, *grandparent, *uncle;
+	rb_tree_t *parent, *grandparent, *uncle = NULL;
 
 	while (node->parent && node->parent->color == RED)
 	{
@@ -122,14 +125,14 @@ void rb_insert_fixup(rb_tree_t **tree, rb_tree_t *node)
 					parent = node->parent;
 				}
 				parent->color = BLACK;
-				grandparent->color = RED;
-				rb_rotate_right(tree, grandparent);
+				parent->parent->color = RED;
+				rb_rotate_right(tree, parent->parent);
 			}
 		}
 		else
 		{
 			uncle = grandparent->left;
-			rb_insert_case(tree, parent, uncle, grandparent, node);
+			node = rb_insert_case(tree, parent, uncle, grandparent, node);
 		}
 	}
 	(*tree)->color = BLACK;
