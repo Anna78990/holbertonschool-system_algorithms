@@ -23,7 +23,7 @@ int symbol_cmp(void *s1, void *s2)
 /**
  * huffman_priority_queue - Creates a priority queue
  * @data: Array of characters
- * @freq: Array of frequencies 
+ * @freq: Array of frequencies
  * @size: Size of the arrays
  * Return: Pointer to the created min heap (priority queue),
  *	   or NULL on failure
