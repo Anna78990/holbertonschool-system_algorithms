@@ -62,7 +62,7 @@ queue_t *backtracking_array(char **map, int rows, int cols,
 	cpy_map = malloc(rows * sizeof(char *));
 	if (!cpy_map)
 		exit(1);
-	for (int i = 0; i < rows; i++)
+	for (i = 0; i < rows; i++)
 	{
 		cpy_map[i] = malloc((cols + 1) * sizeof(char));
 		if (!cpy_map[i])
