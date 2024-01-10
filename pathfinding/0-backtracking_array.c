@@ -1,112 +1,88 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "queues.h"
 #include "pathfinding.h"
 
-queue_t *createQueue(void)
+/**
+ * backtracking - back track the map
+ * @map: Map to backtrack
+ * @rows: Size of row
+ * @cols: Size of column
+ * @target: Target coordinates
+ * @x: X of the backtracking coordinates
+ * @y: Y of the backtracking coordinates
+ * @queue: queue to add the points
+ * Return: 1 when the it is bloked, otherwise 0
+ */
+int backtracking(char **map, int rows, int cols, point_t const *target,
+	int x, int y, queue_t *queue)
 {
-	queue_t* queue = (queue_t*)malloc(sizeof(queue_t));
-	queue->front = NULL;
-	queue->back = NULL;
-	return (queue);
+	point_t *point;
+	queue_node_t *node;
+
+	if (x < 0 || x >= cols || y < 0 || y >= rows || map[y][x] != '0')
+		return (0);
+	map[y][x] = '1';
+	point = calloc(1, sizeof(*point));
+	if (!point)
+		exit(1);
+	point->x = x;
+	point->y = y;
+	queue_push_front(queue, point);
+	printf("Checking coordinates [%d, %d]\n", x, y);
+	if (x == target->x && y == target->y)
+		return (1);
+	if (backtracking(map, rows, cols, target, x + 1, y, queue) ||
+		backtracking(map, rows, cols, target, x, y + 1, queue) ||
+		backtracking(map, rows, cols, target, x - 1, y, queue) ||
+		backtracking(map, rows, cols, target, x, y - 1, queue))
+		return (1);
+	node = dequeue(queue);
+	free(node);
+	return (0);
 }
 
-void enqueue(queue_t* queue, void* ptr) {
-    queue_node_t* newNode = (queue_node_t*)malloc(sizeof(queue_node_t));
-    newNode->ptr = ptr;
-    newNode->next = NULL;
-
-    if (queue->back == NULL) {
-        queue->front = newNode;
-	queue->back = newNode;
-    } else {
-        queue->back->next = newNode;
-        newNode->prev = queue->back;
-        queue->back = newNode;
-    }
-}
-
-void* dequeue(queue_t* queue) {
-    if (queue->front == NULL) {
-        return NULL;
-    }
-
-    void* ptr = queue->front->ptr;
-    queue_node_t* temp = queue->front;
-    queue->front = queue->front->next;
-
-    if (queue->front == NULL) {
-        queue->back = NULL;
-    } else {
-        queue->front->prev = NULL;
-    }
-
-    free(temp);
-    return ptr;
-}
-
-int isValidMove(char** map, int rows, int cols, int x, int y) 
+/**
+ * backtracking_array - find the path in the following order
+ *			<right, down, left, up>
+ * @map: map to search
+ * @rows: the size of row
+ * @cols: the size of column
+ * @start: coordinate of the start
+ * @target: coordinate of the target
+ * Return: queue of coordinates of used path
+ */
+queue_t *backtracking_array(char **map, int rows, int cols,
+		point_t const *start, point_t const *target)
 {
-	return (x >= 0 && x < rows && y >= 0 && y < cols && map[x][y] == '0');
-}
+	char **cpy_map;
+	int i;
+	point_t *point;
+	queue_t *path = queue_create(), *rev = queue_create();
 
-//dont forget put the current ptr into ptr
-void backtrackingHelper(char** map, int rows, int cols, int cur_x, int cur_y,
-		point_t target, int** visited, queue_t* path)
-{
-	if (visited[cur_x][cur_y] == 1 && (isValidMove(map, rows, cols, cur_x, cur_y + 1)
-				+ isValidMove(map, rows, cols, cur_x + 1, cur_y) +
-				isValidMove(map, rows, cols, cur_x, cur_y - 1) +
-				isValidMove(map, rows, cols, cur_x - 1, cur_y)) < 3)
-		path =  dequeue(path);
-	else if (visited[cur_x][cur_y] == 0)
+	cpy_map = malloc(rows * sizeof(char *));
+	if (!cpy_map)
+		exit(1);
+	for (int i = 0; i < rows; i++)
 	{
-		visited[cur_x][cur_y] = 1;
-		point_t* point = (point_t*)malloc(sizeof(point_t));
-		point->x = cur_x;
-		point->y = cur_y;
-		enqueue(path, point);
-		printf("Checking coordinates [%d, %d]\n", point->x, point->y);
+		cpy_map[i] = malloc((cols + 1) * sizeof(char));
+		if (!cpy_map[i])
+			exit(1);
+		strcpy(cpy_map[i], map[i]);
 	}
-	if (cur_x == target.x && cur_y == target.y)
-		return;
-
-	if (isValidMove(map, rows, cols, cur_x, cur_y + 1))
-		backtrackingHelper(map, rows, cols, cur_x, cur_y + 1, target, visited, path);
-	else if (isValidMove(map, rows, cols, cur_x + 1, cur_y))
-		backtrackingHelper(map, rows, cols, cur_x + 1, cur_y, target, visited, path);
-	else if (isValidMove(map, rows, cols, cur_x, cur_y - 1))
-		backtrackingHelper(map, rows, cols, cur_x, cur_y - 1, target, visited, path);
-	else if (isValidMove(map, rows, cols, cur_x - 1, cur_y))
-		backtrackingHelper(map, rows, cols, cur_x - 1, cur_y, target, visited, path);
+	if (backtracking(cpy_map, rows, cols, target, start->x, start->y, path))
+	{
+		while ((point = dequeue(path)))
+			queue_push_front(rev, point);
+		free(path);
+	}
+	else
+	{
+		free(path);
+		free(rev);
+		rev = NULL;
+	}
+	for (i = 0; i < rows; i++)
+		free(cpy_map[i]);
+	free(cpy_map);
+	return (rev);
 }
-
-queue_t* backtracking_array(char** map, int rows, int cols, point_t const* start, point_t const* target) {
-    queue_t* path = createQueue();
-
-    int** visited = (int**)malloc(rows * sizeof(int*));
-    for (int i = 0; i < rows; i++) {
-        visited[i] = (int*)calloc(cols, sizeof(int));
-    }
-
-    visited[start->x][start->y] = 1;
-
-    point_t current;
-    current.x = start->x;
-    current.y = start->y;
-    point_t* point = (point_t*)malloc(sizeof(point_t));
-    point->x = current.x;
-    point->y = current.y;
-    enqueue(path, point);
-
-    backtrackingHelper(map, rows, cols, start->x, start->y, *target, visited, path);
-
-    // Free the visited array
-    for (int i = 0; i < rows; i++) {
-        free(visited[i]);
-    }
-    free(visited);
-
-    return path;
-}
-
