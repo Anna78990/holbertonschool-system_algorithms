@@ -16,13 +16,6 @@ int _dijkstra(ssize_t j, queue_t *queue, vertex_t const *start,
 
 	if (j != -1)
 	{
-		dup = strdup(verts[j]->content);
-		if (!dup)
-		{
-			return (1);
-		}
-		else
-			queue_push_front(queue, dup);
 		for ( ; j != (ssize_t)start->index; j = from[j]->index)
 		{
 			dup = strdup(verts[j]->content);
