@@ -1,4 +1,4 @@
-#include "queuefinding.h"
+#include "pathfinding.h"
 
 /**
  * _dijkstra - the rest of function dijkstra_graph
