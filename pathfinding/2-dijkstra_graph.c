@@ -1,5 +1,8 @@
 #include "pathfinding.h"
 
+
+#define STRDUP(x) ((dup = strdup(x)) ? dup : (exit(1), NULL))
+
 /**
  * _dijkstra - the rest of function dijkstra_graph
  * @j: last index
@@ -16,16 +19,9 @@ int _dijkstra(ssize_t j, queue_t *queue, vertex_t const *start,
 
 	if (j != -1)
 	{
-		for ( ; j != (ssize_t)start->index; j = from[j]->index)
-		{
-			dup = strdup(verts[j]->content);
-			if (!dup)
-			{
-				return (1);
-			}
-			else
-				queue_push_front(queue, dup);
-		}
+		for (queue_push_front(queue, STRDUP(verts[j]->content));
+			j != (ssize_t)start->index; j = from[j]->index)
+			queue_push_front(queue, STRDUP(from[j]->content));
 	}
 	else
 	{
@@ -49,7 +45,7 @@ queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 {
 	vertex_t *tmp, **from, **verts;
 	edge_t *e;
-	ssize_t i, d, j = -1;
+	ssize_t i, d, j = -1, s = 0;
 	queue_t *queue = queue_create();
 	int *cmp;
 
@@ -61,7 +57,7 @@ queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 	if (!verts || !queue || !cmp || !from)
 		return (NULL);
 	for (tmp = graph->vertices; tmp; tmp = tmp->next)
-		verts[tmp->index] = tmp, cmp[tmp->index] = INT_MAX;
+		verts[tmp->index] = tmp, cmp[tmp->index] = INT_MAX, s++;
 	cmp[start->index] = 0, from[start->index] = NULL;
 	while (j != (ssize_t)target->index)
 	{
@@ -74,8 +70,7 @@ queue_t *dijkstra_graph(graph_t *graph, vertex_t const *start,
 			verts[j]->content, start->content, cmp[j]);
 		for (e = verts[j]->edges; e; e = e->next)
 		{
-			if (cmp[j] + e->weight < cmp[e->dest->index] &&
-					cmp[e->dest->index] >= 0)
+			if (cmp[e->dest->index] >= 0 && cmp[j] + e->weight < cmp[e->dest->index])
 			{
 				cmp[e->dest->index] = cmp[j] + e->weight,
 				from[e->dest->index] = verts[j];
